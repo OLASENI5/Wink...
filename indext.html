@@ -1,0 +1,115 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Status with JavaScript</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .battery-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .battery-card h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .battery-status {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .battery-level {
+            width: 100%;
+            height: 40px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .battery-level .level {
+            height: 100%;
+            background-color: #4caf50;
+            border-radius: 6px 0 0 6px;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .charging-status {
+            color: #888;
+            font-size: 16px;
+        }
+
+        /* Charging Icon */
+        .charging-icon {
+            font-size: 24px;
+            color: #4caf50;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="battery-card">
+        <h1>Battery Status</h1>
+        <div class="battery-level">
+            <div class="level" id="battery-level"></div>
+        </div>
+        <p class="battery-status" id="battery-status">Fetching battery data...</p>
+        <p class="charging-status" id="charging-status">
+            <span class="charging-icon" id="charging-icon">⚡</span>
+        </p>
+    </div>
+
+    <script>
+        const batteryStatus = document.getElementById('battery-status');
+        const batteryLevelElement = document.getElementById('battery-level');
+        const chargingStatus = document.getElementById('charging-status');
+        const chargingIcon = document.getElementById('charging-icon');
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                const updateBatteryStatus = () => {
+                    const batteryLevel = (battery.level * 100).toFixed(0);
+                    const charging = battery.charging;
+                    const chargingText = charging ? "Charging" : "Not Charging";
+
+                    // Update battery level bar and status
+                    batteryLevelElement.style.width = `${batteryLevel}%`;
+                    batteryStatus.textContent = `Battery Level: ${batteryLevel}%`;
+
+                    // Show charging status and icon
+                    chargingStatus.textContent = chargingText;
+                    chargingIcon.style.display = charging ? 'inline' : 'none';
+                };
+
+                // Initial update
+                updateBatteryStatus();
+
+                // Listen for changes in battery level or charging status
+                battery.addEventListener('chargingchange', updateBatteryStatus);
+                battery.addEventListener('levelchange', updateBatteryStatus);
+            });
+        } else {
+            batteryStatus.textContent = 'Battery Status API is not supported by your browser.';
+        }
+    </script>
+</body>
+</html>
